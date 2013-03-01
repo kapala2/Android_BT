@@ -1,0 +1,15 @@
+<resources>
+
+    <string name="app_name">AndroidSerial</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="menu_settings">Settings</string>
+    <string name="title_activity_main">Aruino_BT</string>
+    
+    <string name="recvd_message_text">Message Received:</string>
+    <string name="send_msg_text">Message to Send:</string>
+    <string name="send_msg_button_text">Send Message</string>
+    <string name="status_text">Doing nothing yet</string>
+    <string name="close_button_text">Close</string>
+    <string name="open_button_text">Open</string>
+
+</resources>

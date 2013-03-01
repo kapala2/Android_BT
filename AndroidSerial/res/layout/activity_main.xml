@@ -1,0 +1,66 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" 
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/status_text"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/status_text" />
+    
+    <TextView
+        android:id="@+id/recvd_msg_header"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop = "10dip"
+        android:text = "@string/recvd_message_text" />
+    
+    <EditText
+        android:inputType="text"
+        android:id="@+id/recvd_msg_box"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:enabled="false" />    
+    
+    <TextView
+        android:id="@+id/send_msg_header"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dip"
+        android:text="@string/send_msg_text" />
+    
+    <EditText
+        android:inputType="text"
+        android:id="@+id/send_msg_box"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" />
+    
+    <Button
+        android:id="@+id/send_msg_button"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/send_msg_button_text" />
+    
+    <LinearLayout 
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+        
+        <Button 
+	        android:id="@+id/close_button"
+	        android:layout_width="160dip"
+	        android:layout_height="wrap_content"	        
+	        android:text="@string/close_button_text" />
+	    
+	    <Button
+	        android:id="@+id/open_button"
+	        android:layout_width="160dip"
+	        android:layout_height="wrap_content"
+	        android:text="@string/open_button_text" />       
+        
+    </LinearLayout>
+
+
+</LinearLayout>
