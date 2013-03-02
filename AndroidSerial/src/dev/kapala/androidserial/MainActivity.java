@@ -35,8 +35,10 @@ public class MainActivity extends Activity
     Button openButton;
     Button sendButton;
     Button closeButton;
-   // Spinner r_spinner;
+    Button send_color_button;
     SeekBar r_bar;
+    SeekBar g_bar;
+    SeekBar b_bar;
     
     //various adapters
     BluetoothAdapter mBluetoothAdapter;
@@ -53,6 +55,12 @@ public class MainActivity extends Activity
     public listenForDataTask dataTask = null;    
     final byte delimiter = 10; //This is the ASCII code for a newline character
     
+    //Data structures used in reading the slider color values
+    private int r_value = 0;
+    private int g_value = 0;
+    private int b_value = 0;
+    private String color_message = "";
+    
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
@@ -63,13 +71,20 @@ public class MainActivity extends Activity
         openButton = (Button)findViewById(R.id.open_button);
         sendButton = (Button)findViewById(R.id.send_msg_button);
         closeButton = (Button)findViewById(R.id.close_button);
+        send_color_button = (Button)findViewById(R.id.send_color_button);
+        
         //myLabel = (TextView)findViewById(R.id.status_text);
         status_text = (TextView)findViewById(R.id.status_text);
         recvd_msg_box = (EditText)findViewById(R.id.recvd_msg_box);
         //myTextbox = (EditText)findViewById(R.id.send_msg_box);
         send_msg_box = (EditText)findViewById(R.id.send_msg_box);
-       
+        
+
+        //Sliders used to select each color
         r_bar = (SeekBar)findViewById(R.id.r_value_bar);
+        g_bar = (SeekBar)findViewById(R.id.g_value_bar);
+        b_bar = (SeekBar)findViewById(R.id.b_value_bar);
+        
         /*r_spinner = (Spinner)findViewById(R.id.r_value_spinner);
         
         //Set the values for the spinner
@@ -86,9 +101,10 @@ public class MainActivity extends Activity
         //Disable these buttons until connection is est'd
         sendButton.setEnabled(false);
         closeButton.setEnabled(false);
+        send_color_button.setEnabled(false);
         
         //Set focus to the sending message box
-        send_msg_box.setText("rgb:12,45,67");
+        send_msg_box.setText("");
         send_msg_box.requestFocus();
         
         //Check if bluetooth is available.  If not, quit
@@ -97,8 +113,7 @@ public class MainActivity extends Activity
         {
         	status_text.setText("No bluetooth adapter available");
         	return;
-        }
-        
+        }        
         
         //Open Button
         openButton.setOnClickListener(new View.OnClickListener() {
@@ -123,8 +138,8 @@ public class MainActivity extends Activity
         //Send Button
         sendButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v)  {
-            	//Call sendData function
-                sendData();
+            	//Call sendData function, pass the text from the send message box            	
+                sendData(send_msg_box.getText().toString());
             }
         });
         
@@ -137,6 +152,25 @@ public class MainActivity extends Activity
 
             }
         });
+        
+        //Send Color Button
+        send_color_button.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				//Get all of the color values from the slider
+				r_value = r_bar.getProgress();
+				g_value = g_bar.getProgress();
+				b_value = b_bar.getProgress();
+				
+				//Construct the message that will be recognized by the arduino
+				//Format: "rgb:(red_value),(green_value),(blue_value)"
+				//Terminating newline is added by the sendData function
+				color_message = ("rgb:" + r_value + "," + g_value + "," + b_value); 
+				
+				sendData(color_message);
+			}
+		});
     }
     
     
@@ -178,6 +212,7 @@ public class MainActivity extends Activity
         	//Enable the send and close buttons
         	sendButton.setEnabled(true);
         	closeButton.setEnabled(true);
+        	send_color_button.setEnabled(true);
         	
         	return true;
         }
@@ -399,15 +434,16 @@ public class MainActivity extends Activity
      * sendData()
      * 	- Send the data to the bt device
      *  - Append a newline as the terminating character
+     *  @param send_data - A string to be sent to the BT device
      */
-    void sendData()
+    void sendData(String send_data)
     {
     	try {
-    		String msg = send_msg_box.getText().toString();
-    		msg += "\n";
-    		mmOutputStream.write(msg.getBytes());
+    		//String msg = send_msg_box.getText().toString();
+    		send_data += "\n";
+    		mmOutputStream.write(send_data.getBytes());
     		status_text.setText("Data Sent");
-    		send_msg_box.setText("rgb:12,45,67");
+    		send_msg_box.setText("");
     	}
     	catch (Exception ex) {
     		Log.i("sendData", "There was an error sending data: " + ex.toString());

@@ -90,5 +90,11 @@
         android:max="255" 
         android:progressDrawable="@drawable/b_progress"
         android:thumb="@drawable/b_thumb_drawable"/>
+    
+    <Button
+        android:id="@+id/send_color_button"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/send_color_button_text" />
 
 </LinearLayout>
