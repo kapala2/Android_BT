@@ -280,6 +280,8 @@ public class MainActivity extends Activity
         int readBufferPosition = 0;
         byte[] readBuffer = new byte[1024];
         private String data = "";
+        byte read_byte;
+        byte[] packetBytes;
         
         /**
          * doInBackground
@@ -298,35 +300,40 @@ public class MainActivity extends Activity
 	                
 	                if(bytesAvailable > 0) {
 	                	
-	                	byte[] packetBytes = new byte[bytesAvailable];
-	                	mmInputStream.read(packetBytes);
+	                	//TODO: find out why all of these data structures are necessary
+	                	packetBytes = new byte[bytesAvailable];
+                        mmInputStream.read(packetBytes);
 	                	for(int i=0;i<bytesAvailable;i++) {
-	                		byte b = packetBytes[i];
-	                		if(b == delimiter) {
+	                		read_byte = packetBytes[i];
+	                		if(read_byte == delimiter) {
 	                			byte[] encodedBytes = new byte[readBufferPosition];
 	                			System.arraycopy(readBuffer, 0, encodedBytes, 0, encodedBytes.length);
 	                			data = new String(encodedBytes, "US-ASCII");
+	                			
+	                			//data = new String(readBuffer, "US-ASCII");
 	                			readBufferPosition = 0;                            
 
-	                            //recvd_msg_box.setText(data);
+	                            //if there was an error converting to string, put in status bar
 	                            if (data == null){
 	                            	recvd_msg_box.setText("Null message");
 	                            }
 	                        }
-	                        else { readBuffer[readBufferPosition++] = b; }
-	                	}
-	                	
+	                        else { 
+	                        	readBuffer[readBufferPosition++] = read_byte; 
+	                        }
+	                	}//End for loop     	
+              		                	
 	                	//once the entire message has been read, display it on the screen
 	                	publishProgress(data);
 	                	data = "";
-	                }
+	                }//End bytesAvailable if
                 
-	            } 
+	            }//end try 
 	            catch (IOException ex) {
 	                keep_reading = false;
 	                return ex;
 	            }
-			}
+			}//end while
 			return null;
 		}
 		

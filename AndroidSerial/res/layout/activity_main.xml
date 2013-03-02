@@ -22,7 +22,8 @@
         android:id="@+id/recvd_msg_box"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:enabled="false" />    
+        android:enabled="false" 
+        android:maxLines="1" />    
     
     <TextView
         android:id="@+id/send_msg_header"
