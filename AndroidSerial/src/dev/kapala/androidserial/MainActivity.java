@@ -11,6 +11,9 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.SeekBar;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.EditText;  
 import android.widget.Button;
@@ -32,6 +35,8 @@ public class MainActivity extends Activity
     Button openButton;
     Button sendButton;
     Button closeButton;
+   // Spinner r_spinner;
+    SeekBar r_bar;
     
     //various adapters
     BluetoothAdapter mBluetoothAdapter;
@@ -63,6 +68,20 @@ public class MainActivity extends Activity
         recvd_msg_box = (EditText)findViewById(R.id.recvd_msg_box);
         //myTextbox = (EditText)findViewById(R.id.send_msg_box);
         send_msg_box = (EditText)findViewById(R.id.send_msg_box);
+       
+        r_bar = (SeekBar)findViewById(R.id.r_value_bar);
+        /*r_spinner = (Spinner)findViewById(R.id.r_value_spinner);
+        
+        //Set the values for the spinner
+        //Spinner contains values from 0 to 255
+        Integer[] rgb_values = new Integer[256];
+        for (int i = 0; i < 256; i++) {
+        	rgb_values[i] = i;
+        }
+        
+        ArrayAdapter<Integer> rgb_vals_adapter = new ArrayAdapter<Integer>(this, android.R.layout.simple_list_item_1, (Integer[])rgb_values);
+        rgb_vals_adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        r_spinner.setAdapter(rgb_vals_adapter);*/
         
         //Disable these buttons until connection is est'd
         sendButton.setEnabled(false);
