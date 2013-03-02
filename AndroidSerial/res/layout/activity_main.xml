@@ -67,8 +67,28 @@
         android:id="@+id/r_value_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="10dip"
+        android:padding="10dip"        
+        android:max="255" 
         android:progressDrawable="@drawable/r_progress"
-        android:max="255" />
+        android:thumb="@drawable/r_thumb_drawable" />
+
+    <SeekBar
+        android:id="@+id/g_value_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" 
+        android:padding="10dip"
+        android:max="255"
+        android:progressDrawable="@drawable/g_progress"
+        android:thumb="@drawable/g_thumb_drawable"/>
+    
+
+    <SeekBar
+        android:id="@+id/b_value_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" 
+        android:padding="10dip"
+        android:max="255" 
+        android:progressDrawable="@drawable/b_progress"
+        android:thumb="@drawable/b_thumb_drawable"/>
 
 </LinearLayout>
