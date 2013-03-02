@@ -112,21 +112,19 @@ public class MainActivity extends Activity
         //Close button
         closeButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                try {
+ 
                 	//Try to close the bt connection.  
-                    closeBT();
-                }
-                catch (IOException ex) { 
-                	Toast.makeText(getApplicationContext(), "Error closing connection: " + ex.toString(), Toast.LENGTH_LONG).show();
-                	Log.i("closeButton onClick", ex.toString());
-                }
+                    closeBT();                
+
             }
         });
     }
     
     
     /**
-     * Scan through all of the bt devices connected to the phone, locate the proper module ("linvor")
+     * findBT()
+     *  - Scan through all of the bt devices connected to the phone, locate the proper module ("linvor")
+     *  - Updates the status bar text as to whether the device was found
      */
     boolean findBT()
     {
@@ -289,7 +287,7 @@ public class MainActivity extends Activity
          * 	- Keeps reading until an error is encountered, or the connection is closed.
          */
         @Override
-		protected Void doInBackground(String... read_params) {
+		protected Object doInBackground(String... read_params) {
         	
         	int bytesAvailable = 0;
 			
@@ -326,46 +324,44 @@ public class MainActivity extends Activity
 	            } 
 	            catch (IOException ex) {
 	                keep_reading = false;
+	                return ex;
 	            }
 			}
 			return null;
 		}
 		
+        /**
+         * onProgressUpdate
+         *  - Take the message passed from doInBackground, write it to the text box
+         */
 		@Override
 		protected void onProgressUpdate(String... message) {
 			recvd_msg_box.setText(message[0]);
 		}
 		
 		/** 
-		 * Called whenever the async task stops for an error (shouldn't be called after it is cancelled)  
+		 * onPostExecute
+		 * 	- Called whenever the async task stops for an error 
+		 * 		- From developer page: "This method won't be invoked if the task was cancelled"
+		 *  - Indicates the reason that the reading stopped.  
+		 *  	- If an exception is returned, it's an error.  
+		 *  	- If null, then the function exited normally
 		 * 
 		 */
 		@Override
 	    protected void onPostExecute(Object obj_returned) {
-	        // Either switch to the next activity or notify the UI thread to switch
-			/*if (obj_returned instanceof String) {
-					recvd_msg_box.setText((String)obj_returned);
-			}
-	    	else*/
 			if (obj_returned instanceof Exception) {
 	    		Toast.makeText(getApplicationContext(), 
-						"Error getting data: " + ((Exception)obj_returned).toString(), 
+						"Error while getting data: " + ((Exception)obj_returned).toString(), 
 						Toast.LENGTH_LONG).show();
 	    		Log.i("MainActivity", "Exception occurred: " + ((Exception)obj_returned).toString());
 	    	}
-			else {
-				if (obj_returned == null) {
-					//recvd_msg_box.setText("Null obj");
-				}
-				else {
-					//login failure.  Notify user
-		        	Toast.makeText(getApplicationContext(), 
-		        					"Unknown Error.  Please try again: " + obj_returned.getClass().toString(), 
-		        					Toast.LENGTH_LONG).show();
-				}
-			}
 	    }
 		
+		/**
+		 * onCancelled
+		 * 	- Set the keep_reading flag to false, so the while loop in doInBackground stops
+		 */
 		@Override
 		protected void onCancelled() {
 			keep_reading = false;
@@ -374,8 +370,9 @@ public class MainActivity extends Activity
     
     
     /**
-     * Send the data to the arduino
-     * Append a newline as the terminating character
+     * sendData()
+     * 	- Send the data to the bt device
+     *  - Append a newline as the terminating character
      */
     void sendData()
     {
@@ -393,23 +390,30 @@ public class MainActivity extends Activity
     }
     
     /**
-     * Close all of the streams/sockets, stop the async task that's running
-     * @throws IOException
+     * closeBT()
+     * 	- Close all of the streams/sockets
+     * 	- stop the async task that's running
+     * 	- Disable the send and close buttons until a connection is opened again
      */
-    void closeBT() throws IOException
-    {
-
-        mmOutputStream.close();
-        mmInputStream.close();
-        mmSocket.close();
-        status_text.setText("Bluetooth Closed");
-        
-        //Cancel the listening task
-        dataTask.cancel(true);        
-        
-        //Disable these buttons until connection is est'd
-        sendButton.setEnabled(false);
-        closeButton.setEnabled(false);
+    void closeBT(){
+        try {
+        	//Try to close the bt connection.  
+            mmOutputStream.close();
+            mmInputStream.close();
+            mmSocket.close();
+            status_text.setText("Bluetooth Closed");
+            
+            //Cancel the listening task
+            dataTask.cancel(true);        
+            
+            //Disable these buttons until connection is est'd
+            sendButton.setEnabled(false);
+            closeButton.setEnabled(false);
+        }
+        catch (IOException ex) { 
+        	Toast.makeText(getApplicationContext(), "Error closing connection: " + ex.toString(), Toast.LENGTH_LONG).show();
+        	Log.i("closeButton onClick", ex.toString());
+        }
     }
 
     
