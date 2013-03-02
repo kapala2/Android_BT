@@ -84,17 +84,19 @@ public class MainActivity extends Activity
         //Open Button
         openButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                try {
-                	//Need to reset this value so new instances keep working
-                	keep_reading = true;
-                	
-                	//Find the appropriate device, connect to it
-                    findBT();		
-                    openBT();
+            	//Need to reset this value so new AsyncTask instances keep working
+            	keep_reading = true;
+            	
+            	//Find the appropriate device, connect to it
+            	//Only (try to) open the connection if the connection was found
+                if (findBT()) {                    
+                	openBT();
                 }
-                catch (IOException ex) { 
-                	Toast.makeText(getApplicationContext(), "Error trying to connect to bluetooth device: " + ex.toString(), Toast.LENGTH_LONG).show();
-                	Log.i("openButton OnClick", ex.toString());
+                else {
+                	//If the BT device was not found, notify user
+                	Toast.makeText(getApplicationContext(),
+                					"Unable to find BT device.  Please check that all settings are correct.", 
+                					Toast.LENGTH_LONG).show();
                 }
             }
         });
@@ -115,7 +117,7 @@ public class MainActivity extends Activity
                     closeBT();
                 }
                 catch (IOException ex) { 
-                	Toast.makeText(getApplicationContext(), "Error closing connection: " + ex.toString(), Toast.LENGTH_LONG);
+                	Toast.makeText(getApplicationContext(), "Error closing connection: " + ex.toString(), Toast.LENGTH_LONG).show();
                 	Log.i("closeButton onClick", ex.toString());
                 }
             }
@@ -126,7 +128,7 @@ public class MainActivity extends Activity
     /**
      * Scan through all of the bt devices connected to the phone, locate the proper module ("linvor")
      */
-    void findBT()
+    boolean findBT()
     {
     	boolean device_found = false;
 
@@ -159,26 +161,53 @@ public class MainActivity extends Activity
         	//Enable the send and close buttons
         	sendButton.setEnabled(true);
         	closeButton.setEnabled(true);
+        	
+        	return true;
         }
         else {
         	//Change status to error message
         	status_text.setText("Error finding device");
+        	return false;
         }
     }
     
-    void openBT() throws IOException
+    void openBT() 
     {
-        UUID uuid = UUID.fromString("00001101-0000-1000-8000-00805f9b34fb"); //Standard SerialPortService ID
-        mmSocket = mmDevice.createRfcommSocketToServiceRecord(uuid);        
-        mmSocket.connect();
-        mmOutputStream = mmSocket.getOutputStream();
-        mmInputStream = mmSocket.getInputStream();
-        
-        //beginListenForData();
-        dataTask = new listenForDataTask();
-        dataTask.execute();
-        
-        status_text.setText("Bluetooth Opened");
+    	try {
+    		//Open up the input and output streams to the bt device
+	        UUID uuid = UUID.fromString("00001101-0000-1000-8000-00805f9b34fb"); //Standard SerialPortService ID
+	        mmSocket = mmDevice.createRfcommSocketToServiceRecord(uuid);        
+	        mmSocket.connect();
+	        mmOutputStream = mmSocket.getOutputStream();
+	        mmInputStream = mmSocket.getInputStream();
+	        
+	        //Start a new background task to read from the bt device
+	        dataTask = new listenForDataTask();
+	        dataTask.execute();
+	        
+	        status_text.setText("Bluetooth Opened");
+    	}
+    	catch (IOException io_ex) {
+    		Toast.makeText(getApplicationContext(), "Error opening connection to BT device: " + io_ex.toString(), Toast.LENGTH_LONG).show();
+    		Log.i("openBT", "Error opening bt connection: " + io_ex.toString());
+    		status_text.setText("Could not open BT Connection");
+    	}
+    	catch (NullPointerException np_ex) {
+    		Toast.makeText(getApplicationContext(), "Null pointer in openBt.  Check uuid is set correctly.", Toast.LENGTH_LONG).show();    				
+    		Log.i("openBT", "Null pointer in openBT.  Probably uuid.");
+    		status_text.setText("Could not open BT Connection");
+    	}
+    	catch (IllegalArgumentException ia_ex) {
+    		Toast.makeText(getApplicationContext(), "Illegal argument exception in openBt.  Check uuid is set correctly.", Toast.LENGTH_LONG).show();    				
+    		Log.i("openBT", "Illegal argument in openBT.  Probably uuid not formatted correctly.");
+    		status_text.setText("Could not open BT Connection");
+    	}
+    	catch (IllegalStateException is_ex) {
+    		Toast.makeText(getApplicationContext(), "Illegal state exception in openBt.  listenForDataTask is already running.", Toast.LENGTH_LONG).show();    				
+    		Log.i("openBT", "Illegal state exception in openBt.  listenForDataTask is already running.");
+    		status_text.setText("Could not open BT Connection");
+    	}
+    	
     }
     
   /*  void beginListenForData()
@@ -238,20 +267,39 @@ public class MainActivity extends Activity
         workerThread.start();
     }*/
     
+    
+    /**
+     * listenForDataTask
+     * 	- An AsyncTask implementation to handle reading from the bt device
+     * 	- Possibly a blocking call, so it is moved to a separate task
+     * 	- When the entire message is read, the result is passed to the 'onProgressUpdate' function, which displays the message
+     * 	- the doInBackground task will continually loop until an error is encountered, or the "close" button is pressed
+     * @author Matthew
+     *
+     */
     private class listenForDataTask extends AsyncTask<String, String, Object> {
        
         int readBufferPosition = 0;
         byte[] readBuffer = new byte[1024];
         private String data = "";
         
+        /**
+         * doInBackground
+         * 	- Responsible for reading from the bt input stream, collecting the entire message
+         * 	- Keeps reading until an error is encountered, or the connection is closed.
+         */
         @Override
-		protected Void doInBackground(String... urlparams) {
+		protected Void doInBackground(String... read_params) {
+        	
+        	int bytesAvailable = 0;
 			
 			while (keep_reading) {					
-				try  {				
-	                int bytesAvailable = mmInputStream.available();        
+				try  {
+					//Get the length of the message that is available
+	                bytesAvailable = mmInputStream.available();        
 	                
 	                if(bytesAvailable > 0) {
+	                	
 	                	byte[] packetBytes = new byte[bytesAvailable];
 	                	mmInputStream.read(packetBytes);
 	                	for(int i=0;i<bytesAvailable;i++) {
@@ -266,14 +314,11 @@ public class MainActivity extends Activity
 	                            if (data == null){
 	                            	recvd_msg_box.setText("Null message");
 	                            }
-	                            
-	
 	                        }
-	                        else
-	                        {
-	                            readBuffer[readBufferPosition++] = b;
-	                        }
+	                        else { readBuffer[readBufferPosition++] = b; }
 	                	}
+	                	
+	                	//once the entire message has been read, display it on the screen
 	                	publishProgress(data);
 	                	data = "";
 	                }
@@ -281,7 +326,6 @@ public class MainActivity extends Activity
 	            } 
 	            catch (IOException ex) {
 	                keep_reading = false;
-	                //return ex;
 	            }
 			}
 			return null;
