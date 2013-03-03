@@ -36,6 +36,7 @@ public class MainActivity extends Activity
     Button sendButton;
     Button closeButton;
     Button send_color_button;
+    Button twist_servo_button;
     SeekBar r_bar;
     SeekBar g_bar;
     SeekBar b_bar;
@@ -60,6 +61,7 @@ public class MainActivity extends Activity
     private int g_value = 0;
     private int b_value = 0;
     private String color_message = "";
+    private final String SERVO_MESSAGE = "servo:";
     
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -72,6 +74,7 @@ public class MainActivity extends Activity
         sendButton = (Button)findViewById(R.id.send_msg_button);
         closeButton = (Button)findViewById(R.id.close_button);
         send_color_button = (Button)findViewById(R.id.send_color_button);
+        twist_servo_button = (Button)findViewById(R.id.twist_servo_button);
         
         //myLabel = (TextView)findViewById(R.id.status_text);
         status_text = (TextView)findViewById(R.id.status_text);
@@ -102,6 +105,7 @@ public class MainActivity extends Activity
         sendButton.setEnabled(false);
         closeButton.setEnabled(false);
         send_color_button.setEnabled(false);
+        twist_servo_button.setEnabled(false);
         
         //Set focus to the sending message box
         send_msg_box.setText("");
@@ -171,6 +175,15 @@ public class MainActivity extends Activity
 				sendData(color_message);
 			}
 		});
+        
+        //Twist Servo Button
+        twist_servo_button.setOnClickListener(new View.OnClickListener() {
+        	
+        	@Override
+        	public void onClick(View v) {
+        		sendData(SERVO_MESSAGE);
+        	}
+        });
     }
     
     
@@ -213,6 +226,7 @@ public class MainActivity extends Activity
         	sendButton.setEnabled(true);
         	closeButton.setEnabled(true);
         	send_color_button.setEnabled(true);
+        	twist_servo_button.setEnabled(true);
         	
         	return true;
         }
@@ -471,6 +485,8 @@ public class MainActivity extends Activity
             //Disable these buttons until connection is est'd
             sendButton.setEnabled(false);
             closeButton.setEnabled(false);
+            send_color_button.setEnabled(false);
+            twist_servo_button.setEnabled(false);
         }
         catch (IOException ex) { 
         	Toast.makeText(getApplicationContext(), "Error closing connection: " + ex.toString(), Toast.LENGTH_LONG).show();

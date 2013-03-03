@@ -12,4 +12,6 @@
     <string name="close_button_text">Close</string>
     <string name="open_button_text">Open</string>
 	<string name="send_color_button_text">Send Color</string>
+	<string name="twist_servo_button_text">Twist Servo</string>
+	
 </resources>
