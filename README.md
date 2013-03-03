@@ -17,5 +17,6 @@ To use:
   Messages can be typed in the lower text box (the upper box is disabled).  Click "Send Message" to pass the message to the arduino
     If everything was set up correctly, the message will show up in the arduino serial monitor.
   Click "close" to close the connection between devices.
-    Communincation will be disabled ("Send Message" and "close" buttons) until a new connection is est'd (click "Open").
+    Communincation will be disabled ("Send Message", "Send Color", "close" buttons) until a new connection is est'd (click "Open").
+  Use the sliders to select the individual values for each of red, green, and blue.  Click "Send Colors" to pass the colors to the arduino.
 
