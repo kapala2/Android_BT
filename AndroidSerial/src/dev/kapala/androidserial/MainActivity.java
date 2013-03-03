@@ -88,18 +88,7 @@ public class MainActivity extends Activity
         g_bar = (SeekBar)findViewById(R.id.g_value_bar);
         b_bar = (SeekBar)findViewById(R.id.b_value_bar);
         
-        /*r_spinner = (Spinner)findViewById(R.id.r_value_spinner);
-        
-        //Set the values for the spinner
-        //Spinner contains values from 0 to 255
-        Integer[] rgb_values = new Integer[256];
-        for (int i = 0; i < 256; i++) {
-        	rgb_values[i] = i;
-        }
-        
-        ArrayAdapter<Integer> rgb_vals_adapter = new ArrayAdapter<Integer>(this, android.R.layout.simple_list_item_1, (Integer[])rgb_values);
-        rgb_vals_adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        r_spinner.setAdapter(rgb_vals_adapter);*/
+
         
         //Disable these buttons until connection is est'd
         sendButton.setEnabled(false);
