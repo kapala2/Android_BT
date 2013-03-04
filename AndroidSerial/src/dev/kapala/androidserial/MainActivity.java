@@ -37,6 +37,7 @@ public class MainActivity extends Activity
     Button closeButton;
     Button send_color_button;
     Button twist_servo_button;
+    Button read_photo_button;
     SeekBar r_bar;
     SeekBar g_bar;
     SeekBar b_bar;
@@ -62,6 +63,7 @@ public class MainActivity extends Activity
     private int b_value = 0;
     private String color_message = "";
     private final String SERVO_MESSAGE = "servo:";
+    private final String PHOTO_MESSAGE = "photo:";
     
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -75,6 +77,7 @@ public class MainActivity extends Activity
         closeButton = (Button)findViewById(R.id.close_button);
         send_color_button = (Button)findViewById(R.id.send_color_button);
         twist_servo_button = (Button)findViewById(R.id.twist_servo_button);
+        read_photo_button = (Button)findViewById(R.id.read_photo_button);
         
         //myLabel = (TextView)findViewById(R.id.status_text);
         status_text = (TextView)findViewById(R.id.status_text);
@@ -95,6 +98,7 @@ public class MainActivity extends Activity
         closeButton.setEnabled(false);
         send_color_button.setEnabled(false);
         twist_servo_button.setEnabled(false);
+        read_photo_button.setEnabled(false);
         
         //Set focus to the sending message box
         send_msg_box.setText("");
@@ -173,6 +177,16 @@ public class MainActivity extends Activity
         		sendData(SERVO_MESSAGE);
         	}
         });
+        
+        //Read PhotoResistor button
+        read_photo_button.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				// Send the "photo:" tag to start the arduino sending photoresistor data
+				sendData(PHOTO_MESSAGE);				
+			}
+		});
     }
     
     
@@ -210,13 +224,6 @@ public class MainActivity extends Activity
         //Update the screen (enable buttons, set status text) if device found
         if (device_found) {
         	status_text.setText("Bluetooth Device Found");
-        	
-        	//Enable the send and close buttons
-        	sendButton.setEnabled(true);
-        	closeButton.setEnabled(true);
-        	send_color_button.setEnabled(true);
-        	twist_servo_button.setEnabled(true);
-        	
         	return true;
         }
         else {
@@ -235,6 +242,13 @@ public class MainActivity extends Activity
 	        mmSocket.connect();
 	        mmOutputStream = mmSocket.getOutputStream();
 	        mmInputStream = mmSocket.getInputStream();
+	        
+        	//Enable the send and close buttons
+        	sendButton.setEnabled(true);
+        	closeButton.setEnabled(true);
+        	send_color_button.setEnabled(true);
+        	twist_servo_button.setEnabled(true);
+        	read_photo_button.setEnabled(true);
 	        
 	        //Start a new background task to read from the bt device
 	        dataTask = new listenForDataTask();
@@ -476,6 +490,7 @@ public class MainActivity extends Activity
             closeButton.setEnabled(false);
             send_color_button.setEnabled(false);
             twist_servo_button.setEnabled(false);
+            read_photo_button.setEnabled(false);
         }
         catch (IOException ex) { 
         	Toast.makeText(getApplicationContext(), "Error closing connection: " + ex.toString(), Toast.LENGTH_LONG).show();
