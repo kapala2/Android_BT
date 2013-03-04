@@ -13,5 +13,6 @@
     <string name="open_button_text">Open</string>
 	<string name="send_color_button_text">Send Color</string>
 	<string name="twist_servo_button_text">Twist Servo</string>
+	<string name="read_photo_button_text">Read Photoresistor</string>
 	
 </resources>

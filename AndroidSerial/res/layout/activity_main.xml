@@ -38,75 +38,93 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content" />
     
-    <Button
-        android:id="@+id/send_msg_button"
+    <ScrollView
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/send_msg_button_text" />
-    
-    <LinearLayout 
-        android:orientation="horizontal"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content">
-        
-        <Button 
-	        android:id="@+id/close_button"
-	        android:layout_width="160dip"
-	        android:layout_height="wrap_content"	        
-	        android:text="@string/close_button_text" />
-	    
-	    <Button
-	        android:id="@+id/open_button"
-	        android:layout_width="160dip"
-	        android:layout_height="wrap_content"
-	        android:text="@string/open_button_text" />       
-        
-    </LinearLayout>
-
-    <SeekBar
-        android:id="@+id/r_value_bar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="10dip"        
-        android:max="255" 
-        android:progressDrawable="@drawable/r_progress"
-        android:thumb="@drawable/r_thumb_drawable" />
-
-    <SeekBar
-        android:id="@+id/g_value_bar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" 
-        android:padding="10dip"
-        android:max="255"
-        android:progressDrawable="@drawable/g_progress"
-        android:thumb="@drawable/g_thumb_drawable"/>
-    
-
-    <SeekBar
-        android:id="@+id/b_value_bar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" 
-        android:padding="10dip"
-        android:max="255" 
-        android:progressDrawable="@drawable/b_progress"
-        android:thumb="@drawable/b_thumb_drawable"/>
-    
-    <LinearLayout 
-        android:orientation="horizontal"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content">
-	    
-	    <Button
-	        android:id="@+id/send_color_button"
-	        android:layout_width="160dip"
-	        android:layout_height="wrap_content"
-	        android:text="@string/send_color_button_text" />
-	    
-	    <Button
-	        android:id="@+id/twist_servo_button"
-	        android:layout_width="160dip"
-	        android:layout_height="wrap_content"
-	        android:text="@string/twist_servo_button_text" />
-    </LinearLayout>
+        android:layout_height="fill_parent">
+        <LinearLayout 
+            android:orientation="vertical"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content">
+	        
+		    
+		    <Button
+		        android:id="@+id/send_msg_button"
+		        android:layout_width="fill_parent"
+		        android:layout_height="wrap_content"
+		        android:text="@string/send_msg_button_text" />
+		    
+		    <LinearLayout 
+		        android:orientation="horizontal"
+		        android:layout_width="fill_parent"
+		        android:layout_height="wrap_content">
+		        
+		        <Button 
+			        android:id="@+id/close_button"
+			        android:layout_width="160dip"
+			        android:layout_height="wrap_content"	        
+			        android:text="@string/close_button_text" />
+			    
+			    <Button
+			        android:id="@+id/open_button"
+			        android:layout_width="160dip"
+			        android:layout_height="wrap_content"
+			        android:text="@string/open_button_text" />       
+		        
+		    </LinearLayout>
+		
+		    <SeekBar
+		        android:id="@+id/r_value_bar"
+		        android:layout_width="match_parent"
+		        android:layout_height="wrap_content"
+		        android:padding="10dip"        
+		        android:max="255" 
+		        android:progressDrawable="@drawable/r_progress"
+		        android:thumb="@drawable/r_thumb_drawable" />
+		
+		    <SeekBar
+		        android:id="@+id/g_value_bar"
+		        android:layout_width="match_parent"
+		        android:layout_height="wrap_content" 
+		        android:padding="10dip"
+		        android:max="255"
+		        android:progressDrawable="@drawable/g_progress"
+		        android:thumb="@drawable/g_thumb_drawable"/>
+		    
+		
+		    <SeekBar
+		        android:id="@+id/b_value_bar"
+		        android:layout_width="match_parent"
+		        android:layout_height="wrap_content" 
+		        android:padding="10dip"
+		        android:max="255" 
+		        android:progressDrawable="@drawable/b_progress"
+		        android:thumb="@drawable/b_thumb_drawable"/>
+		    
+		    <LinearLayout 
+		        android:orientation="horizontal"
+		        android:layout_width="fill_parent"
+		        android:layout_height="wrap_content">
+			    
+			    <Button
+			        android:id="@+id/send_color_button"
+			        android:layout_width="160dip"
+			        android:layout_height="wrap_content"
+			        android:text="@string/send_color_button_text" />
+			    
+			    <Button
+			        android:id="@+id/twist_servo_button"
+			        android:layout_width="160dip"
+			        android:layout_height="wrap_content"
+			        android:text="@string/twist_servo_button_text" />
+		    </LinearLayout>
+		    
+		    <Button
+		        android:id="@+id/read_photo_button"
+		        android:layout_width="fill_parent"
+		        android:layout_height="wrap_content"
+		        android:text="@string/read_photo_button_text" />
+		    
+	    </LinearLayout>
+	</ScrollView>
 
 </LinearLayout>
