@@ -110,12 +110,13 @@
 			        android:layout_width="160dip"
 			        android:layout_height="wrap_content"
 			        android:text="@string/send_color_button_text" />
-			    
+
 			    <Button
 			        android:id="@+id/twist_servo_button"
 			        android:layout_width="160dip"
 			        android:layout_height="wrap_content"
 			        android:text="@string/twist_servo_button_text" />
+
 		    </LinearLayout>
 		    
 		    <Button

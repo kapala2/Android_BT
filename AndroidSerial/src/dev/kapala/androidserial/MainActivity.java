@@ -2,12 +2,14 @@ package dev.kapala.androidserial;
 
 
 import android.app.Activity;
+import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.telephony.SmsManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
@@ -49,6 +51,11 @@ public class MainActivity extends Activity
     OutputStream mmOutputStream;
     InputStream mmInputStream;
     
+    //SMS manager for sending/recv text
+    SmsManager sms_mgr = null;
+    PendingIntent sentPI;
+    final String SENT_MSG = "Message Sent";
+    
     //data structures used in reading text
     byte[] readBuffer;
     int readBufferPosition = 0;
@@ -83,15 +90,16 @@ public class MainActivity extends Activity
         status_text = (TextView)findViewById(R.id.status_text);
         recvd_msg_box = (EditText)findViewById(R.id.recvd_msg_box);
         //myTextbox = (EditText)findViewById(R.id.send_msg_box);
-        send_msg_box = (EditText)findViewById(R.id.send_msg_box);
-        
+        send_msg_box = (EditText)findViewById(R.id.send_msg_box);        
 
         //Sliders used to select each color
         r_bar = (SeekBar)findViewById(R.id.r_value_bar);
         g_bar = (SeekBar)findViewById(R.id.g_value_bar);
         b_bar = (SeekBar)findViewById(R.id.b_value_bar);
         
-
+        //Init the sms_manager
+        sms_mgr = SmsManager.getDefault();
+        sentPI = PendingIntent.getBroadcast(this, 0,new Intent(SENT_MSG), 0);
         
         //Disable these buttons until connection is est'd
         sendButton.setEnabled(false);
@@ -354,6 +362,14 @@ public class MainActivity extends Activity
         byte read_byte;
         byte[] packetBytes;
         
+        String msg_header = "";
+        String arg_1 = "";
+        String arg_2 = "";
+        int msg_length = 0;
+        final int ASCII_COLON = 58;
+        
+        
+        
         /**
          * doInBackground
          * 	- Responsible for reading from the bt input stream, collecting the entire message
@@ -414,7 +430,48 @@ public class MainActivity extends Activity
          */
 		@Override
 		protected void onProgressUpdate(String... message) {
-			recvd_msg_box.setText(message[0]);
+			
+			
+			//TODO: a lot of error handling here
+			try {
+				msg_length = message[0].length();
+				
+				if (message[0] == null) {
+					recvd_msg_box.setText("null message");
+				}				
+				else {
+					
+					if (msg_length > 3){					
+						//grab the header for this message
+						msg_header = message[0].substring(0,3);
+						if (msg_header.equals("txt")) {
+							//arg_1 = message[0].substring(4, message[0].indexOf(ASCII_COLON));		//recepient
+							arg_1 = message[0].substring(4, 14);
+							arg_2 = message[0].substring(16, msg_length);		//msg_length, because newline not added
+							
+							//sms_mgr.sendTextMessage(arg_1, null, arg_2, sentPI, null);	//try to send the message
+							recvd_msg_box.setText(arg_2);
+						}
+						else { 
+							recvd_msg_box.setText("Wrong header: " + message[0]);
+						}			
+					}
+					else {
+						//recvd_msg_box.setText("wrong length: " + msg_length);
+						recvd_msg_box.setText("the message: " + message[0] + " " + msg_length);
+					}
+				}
+			}
+			catch (IndexOutOfBoundsException iob_ex) {
+				//If the message was not at least 3 characters, it cannot be the "sms:" message, just set it
+				recvd_msg_box.setText("Try failed");
+			}
+			catch (Exception np_ex) {
+				Toast.makeText(getApplicationContext(), "Error in onProgUpdate: "+np_ex.toString(), Toast.LENGTH_LONG).show();
+			}
+			
+
+
 		}
 		
 		/** 
