@@ -2,6 +2,7 @@ package dev.kapala.androidserial;
 
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -72,11 +73,23 @@ public class MainActivity extends Activity
     private final String SERVO_MESSAGE = "servo:";
     private final String PHOTO_MESSAGE = "photo:";
     
+    //Dialog box items
+    Dialog read_sensors_view;
+    TextView photo_box;
+    Button cancel_dialog_button;
+    
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        
+        //ALternate read sensors view dialog
+        read_sensors_view = new Dialog(this);
+        read_sensors_view.setContentView(R.layout.read_photo);
+        read_sensors_view.setTitle("Sensor values!");
+        photo_box = (TextView)read_sensors_view.findViewById(R.id.photo_value);
+        cancel_dialog_button = (Button)read_sensors_view.findViewById(R.id.cancel_dialog_button);
         
         //Initialize screen items
         openButton = (Button)findViewById(R.id.open_button);
@@ -119,6 +132,15 @@ public class MainActivity extends Activity
         	status_text.setText("No bluetooth adapter available");
         	return;
         }        
+        
+        cancel_dialog_button.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				// Just close the box
+				read_sensors_view.cancel();
+			}
+		});
         
         //Open Button
         openButton.setOnClickListener(new View.OnClickListener() {
@@ -193,6 +215,9 @@ public class MainActivity extends Activity
 			public void onClick(View v) {
 				// Send the "photo:" tag to start the arduino sending photoresistor data
 				sendData(PHOTO_MESSAGE);				
+				
+				read_sensors_view.show();
+				
 			}
 		});
     }
@@ -429,8 +454,8 @@ public class MainActivity extends Activity
          *  - Take the message passed from doInBackground, write it to the text box
          */
 		@Override
-		protected void onProgressUpdate(String... message) {
-			
+		protected void onProgressUpdate(String... message) {			
+
 			
 			//TODO: a lot of error handling here
 			try {
@@ -452,9 +477,13 @@ public class MainActivity extends Activity
 							//sms_mgr.sendTextMessage(arg_1, null, arg_2, sentPI, null);	//try to send the message
 							recvd_msg_box.setText(arg_2);
 						}
-						else { 
-							recvd_msg_box.setText("Wrong header: " + message[0]);
-						}			
+						else if (msg_header.equals("pht")){
+							photo_box.setText("photo: " + message[0].substring(4, msg_length));
+							
+						}	
+						else {
+							recvd_msg_box.setText("Unrecognized header: " + message[0]);
+						}
 					}
 					else {
 						//recvd_msg_box.setText("wrong length: " + msg_length);

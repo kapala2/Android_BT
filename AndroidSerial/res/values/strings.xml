@@ -14,5 +14,7 @@
 	<string name="send_color_button_text">Send Color</string>
 	<string name="twist_servo_button_text">Twist Servo</string>
 	<string name="read_photo_button_text">Read Photoresistor</string>
+	<string name="photo_value_label_text">Photoresistor Value</string>
+	<string name="cancel_dialog_button_text">Cancel</string>
 	
 </resources>
