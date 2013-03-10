@@ -7,16 +7,19 @@ import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.content.Context;
 import android.content.Intent;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.telephony.SmsManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.SeekBar;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.EditText;  
 import android.widget.Button;
@@ -29,7 +32,7 @@ import java.util.Set;
 import java.util.UUID;
 
 
-public class MainActivity extends Activity
+public class MainActivity extends Activity implements SensorEventListener
 {
 	//Items on the screen
     TextView status_text;
@@ -41,6 +44,7 @@ public class MainActivity extends Activity
     Button send_color_button;
     Button twist_servo_button;
     Button read_photo_button;
+    Button read_rotn_button;
     SeekBar r_bar;
     SeekBar g_bar;
     SeekBar b_bar;
@@ -77,6 +81,11 @@ public class MainActivity extends Activity
     Dialog read_sensors_view;
     TextView photo_box;
     Button cancel_dialog_button;
+    boolean sensor_window_open = false;
+    
+    //Rotation sensor items
+    private SensorManager sensor_mgr;
+    private Sensor rotn_sensor;
     
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -84,42 +93,24 @@ public class MainActivity extends Activity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         
-        //ALternate read sensors view dialog
-        read_sensors_view = new Dialog(this);
-        read_sensors_view.setContentView(R.layout.read_photo);
-        read_sensors_view.setTitle("Sensor values!");
-        photo_box = (TextView)read_sensors_view.findViewById(R.id.photo_value);
-        cancel_dialog_button = (Button)read_sensors_view.findViewById(R.id.cancel_dialog_button);
-        
         //Initialize screen items
-        openButton = (Button)findViewById(R.id.open_button);
-        sendButton = (Button)findViewById(R.id.send_msg_button);
-        closeButton = (Button)findViewById(R.id.close_button);
-        send_color_button = (Button)findViewById(R.id.send_color_button);
-        twist_servo_button = (Button)findViewById(R.id.twist_servo_button);
-        read_photo_button = (Button)findViewById(R.id.read_photo_button);
+        initScreen();   
         
-        //myLabel = (TextView)findViewById(R.id.status_text);
-        status_text = (TextView)findViewById(R.id.status_text);
-        recvd_msg_box = (EditText)findViewById(R.id.recvd_msg_box);
-        //myTextbox = (EditText)findViewById(R.id.send_msg_box);
-        send_msg_box = (EditText)findViewById(R.id.send_msg_box);        
-
-        //Sliders used to select each color
-        r_bar = (SeekBar)findViewById(R.id.r_value_bar);
-        g_bar = (SeekBar)findViewById(R.id.g_value_bar);
-        b_bar = (SeekBar)findViewById(R.id.b_value_bar);
         
         //Init the sms_manager
         sms_mgr = SmsManager.getDefault();
         sentPI = PendingIntent.getBroadcast(this, 0,new Intent(SENT_MSG), 0);
+        
+        //Init the rotation sensor
+        sensor_mgr = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        rotn_sensor = sensor_mgr.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
         
         //Disable these buttons until connection is est'd
         sendButton.setEnabled(false);
         closeButton.setEnabled(false);
         send_color_button.setEnabled(false);
         twist_servo_button.setEnabled(false);
-        read_photo_button.setEnabled(false);
+        read_photo_button.setEnabled(false);        
         
         //Set focus to the sending message box
         send_msg_box.setText("");
@@ -131,14 +122,86 @@ public class MainActivity extends Activity
         {
         	status_text.setText("No bluetooth adapter available");
         	return;
-        }        
+        }            
+
         
-        cancel_dialog_button.setOnClickListener(new View.OnClickListener() {
-			
+        //Set the various listeners
+        setListeners();
+        
+      
+    }
+    
+    @Override
+    protected void onPause() {
+    	//sensor_mgr.unregisterListener( );
+    }
+    
+	@Override
+	public void onAccuracyChanged(Sensor sensor, int accuracy) {
+		//Do nothing here
+	}
+
+	@Override
+	public void onSensorChanged(SensorEvent event) {
+	
+		if (event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR) {
+			//event.values;
+		}
+	}
+	
+	
+	/**
+	 * initScreen
+	 *  - Initializes all of the screen elements
+	 */
+	private void initScreen() {
+		
+		//Alternate read sensors view dialog
+        read_sensors_view = new Dialog(this);
+        read_sensors_view.setContentView(R.layout.read_photo);
+        read_sensors_view.setTitle("Sensor values!");
+        photo_box = (TextView)read_sensors_view.findViewById(R.id.photo_value);
+        cancel_dialog_button = (Button)read_sensors_view.findViewById(R.id.cancel_dialog_button);
+        
+        //Initialize Buttons
+        openButton = (Button)findViewById(R.id.open_button);
+        sendButton = (Button)findViewById(R.id.send_msg_button);
+        closeButton = (Button)findViewById(R.id.close_button);
+        send_color_button = (Button)findViewById(R.id.send_color_button);
+        twist_servo_button = (Button)findViewById(R.id.twist_servo_button);
+        read_photo_button = (Button)findViewById(R.id.read_photo_button);
+        read_rotn_button = (Button)findViewById(R.id.read_rotn_button);
+        
+        //Init the text boxes used on the screen
+        status_text = (TextView)findViewById(R.id.status_text);
+        recvd_msg_box = (EditText)findViewById(R.id.recvd_msg_box);
+        send_msg_box = (EditText)findViewById(R.id.send_msg_box);    
+        //myLabel = (TextView)findViewById(R.id.status_text);
+        //myTextbox = (EditText)findViewById(R.id.send_msg_box);
+
+        //Sliders used to select each color
+        r_bar = (SeekBar)findViewById(R.id.r_value_bar);
+        g_bar = (SeekBar)findViewById(R.id.g_value_bar);
+        b_bar = (SeekBar)findViewById(R.id.b_value_bar);
+        
+	}
+	
+	/**
+	 * setListeners
+	 *  - Sets all of the onClickListeners for the buttons.  
+	 */
+	private void setListeners() {
+		
+		 /**
+         * listener for new dialog cancel button.  
+         * Just closes the dialog.
+         */
+        cancel_dialog_button.setOnClickListener(new View.OnClickListener() {			
 			@Override
 			public void onClick(View v) {
 				// Just close the box
 				read_sensors_view.cancel();
+				sensor_window_open = false;
 			}
 		});
         
@@ -172,17 +235,14 @@ public class MainActivity extends Activity
         
         //Close button
         closeButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
- 
+            public void onClick(View v) { 
                 	//Try to close the bt connection.  
-                    closeBT();                
-
+                    closeBT();
             }
         });
         
         //Send Color Button
-        send_color_button.setOnClickListener(new View.OnClickListener() {
-			
+        send_color_button.setOnClickListener(new View.OnClickListener() {			
 			@Override
 			public void onClick(View v) {
 				//Get all of the color values from the slider
@@ -200,8 +260,7 @@ public class MainActivity extends Activity
 		});
         
         //Twist Servo Button
-        twist_servo_button.setOnClickListener(new View.OnClickListener() {
-        	
+        twist_servo_button.setOnClickListener(new View.OnClickListener() {        	
         	@Override
         	public void onClick(View v) {
         		sendData(SERVO_MESSAGE);
@@ -209,18 +268,33 @@ public class MainActivity extends Activity
         });
         
         //Read PhotoResistor button
-        read_photo_button.setOnClickListener(new View.OnClickListener() {
-			
+        read_photo_button.setOnClickListener(new View.OnClickListener() {			
 			@Override
 			public void onClick(View v) {
 				// Send the "photo:" tag to start the arduino sending photoresistor data
 				sendData(PHOTO_MESSAGE);				
 				
 				read_sensors_view.show();
+				sensor_window_open = true;
 				
 			}
 		});
-    }
+        
+        /**
+         * read_rotn_button listener
+         * Handoff to fn to read rotn value, write to screen
+         */
+        read_rotn_button.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				// Call the function to handle this
+				//sensor_mgr.registerListener(listener, sensors, rate)
+				read_rotn();
+				
+			}
+		});
+	}
     
     
     /**
@@ -266,6 +340,12 @@ public class MainActivity extends Activity
         }
     }
     
+    /**
+     * openBT()
+     *  - Opens the connection to the bluetooth device
+     *  - Once a connection is opened, enable all of the communication buttons
+     *  - Start a new background task to continually listen for data
+     */
     void openBT() 
     {
     	try {
@@ -312,62 +392,7 @@ public class MainActivity extends Activity
     	
     }
     
-  /*  void beginListenForData()
-    {
-        final Handler handler = new Handler(); 
-        final byte delimiter = 10; //This is the ASCII code for a newline character
-        
-        stopWorker = false;
-        readBufferPosition = 0;
-        readBuffer = new byte[1024];
-        workerThread = new Thread(new Runnable()
-        {
-            public void run()
-            {                
-               while(!Thread.currentThread().isInterrupted() && !stopWorker)
-               {
-                    try 
-                    {
-                        int bytesAvailable = mmInputStream.available();                        
-                        if(bytesAvailable > 0)
-                        {
-                            byte[] packetBytes = new byte[bytesAvailable];
-                            mmInputStream.read(packetBytes);
-                            for(int i=0;i<bytesAvailable;i++)
-                            {
-                                byte b = packetBytes[i];
-                                if(b == delimiter)
-                                {
-                                    byte[] encodedBytes = new byte[readBufferPosition];
-                                    System.arraycopy(readBuffer, 0, encodedBytes, 0, encodedBytes.length);
-                                    final String data = new String(encodedBytes, "US-ASCII");
-                                    readBufferPosition = 0;
-                                    
-                                    handler.post(new Runnable()
-                                    {
-                                        public void run()
-                                        {
-                                        	recvd_msg_box.setText(data);
-                                        }
-                                    });
-                                }
-                                else
-                                {
-                                    readBuffer[readBufferPosition++] = b;
-                                }
-                            }
-                        }
-                    } 
-                    catch (IOException ex) 
-                    {
-                        stopWorker = true;
-                    }
-               }
-            }
-        });
 
-        workerThread.start();
-    }*/
     
     
     /**
@@ -477,7 +502,7 @@ public class MainActivity extends Activity
 							//sms_mgr.sendTextMessage(arg_1, null, arg_2, sentPI, null);	//try to send the message
 							recvd_msg_box.setText(arg_2);
 						}
-						else if (msg_header.equals("pht")){
+						else if (msg_header.equals("pht") && sensor_window_open){		//only try to write to this when its open
 							photo_box.setText("photo: " + message[0].substring(4, msg_length));
 							
 						}	
@@ -583,6 +608,14 @@ public class MainActivity extends Activity
         	Log.i("closeButton onClick", ex.toString());
         }
     }
+    
+    /**
+     * Reads the value of the rotation from the Rotation Vector Sensor, outputs a string representation of that to the screen.
+     * Returns nothing
+     */
+    void read_rotn() {    	
+    	//rotn_sensor.toString();    	
+    }
 
     
     //Unused
@@ -592,3 +625,60 @@ public class MainActivity extends Activity
         return true;
     }
 }
+
+/*  void beginListenForData()
+{
+    final Handler handler = new Handler(); 
+    final byte delimiter = 10; //This is the ASCII code for a newline character
+    
+    stopWorker = false;
+    readBufferPosition = 0;
+    readBuffer = new byte[1024];
+    workerThread = new Thread(new Runnable()
+    {
+        public void run()
+        {                
+           while(!Thread.currentThread().isInterrupted() && !stopWorker)
+           {
+                try 
+                {
+                    int bytesAvailable = mmInputStream.available();                        
+                    if(bytesAvailable > 0)
+                    {
+                        byte[] packetBytes = new byte[bytesAvailable];
+                        mmInputStream.read(packetBytes);
+                        for(int i=0;i<bytesAvailable;i++)
+                        {
+                            byte b = packetBytes[i];
+                            if(b == delimiter)
+                            {
+                                byte[] encodedBytes = new byte[readBufferPosition];
+                                System.arraycopy(readBuffer, 0, encodedBytes, 0, encodedBytes.length);
+                                final String data = new String(encodedBytes, "US-ASCII");
+                                readBufferPosition = 0;
+                                
+                                handler.post(new Runnable()
+                                {
+                                    public void run()
+                                    {
+                                    	recvd_msg_box.setText(data);
+                                    }
+                                });
+                            }
+                            else
+                            {
+                                readBuffer[readBufferPosition++] = b;
+                            }
+                        }
+                    }
+                } 
+                catch (IOException ex) 
+                {
+                    stopWorker = true;
+                }
+           }
+        }
+    });
+
+    workerThread.start();
+}*/

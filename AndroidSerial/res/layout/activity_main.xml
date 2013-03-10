@@ -125,6 +125,12 @@
 		        android:layout_height="wrap_content"
 		        android:text="@string/read_photo_button_text" />
 		    
+		    <Button
+		        android:id="@+id/read_rotn_button"
+		        android:layout_width="fill_parent"
+		        android:layout_height="wrap_content"
+		        android:text="@string/read_rotn_button_text" />
+		    
 	    </LinearLayout>
 	</ScrollView>
 

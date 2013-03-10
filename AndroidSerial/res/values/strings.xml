@@ -15,6 +15,7 @@
 	<string name="twist_servo_button_text">Twist Servo</string>
 	<string name="read_photo_button_text">Read Photoresistor</string>
 	<string name="photo_value_label_text">Photoresistor Value</string>
+	<string name="read_rotn_button_text">Read Rotation</string>
 	<string name="cancel_dialog_button_text">Cancel</string>
 	
 </resources>
