@@ -7,12 +7,7 @@ import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
-import android.content.Context;
 import android.content.Intent;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.telephony.SmsManager;
@@ -32,7 +27,8 @@ import java.util.Set;
 import java.util.UUID;
 
 
-public class MainActivity extends Activity implements SensorEventListener
+
+public class MainActivity extends Activity
 {
 	//Items on the screen
     TextView status_text;
@@ -81,11 +77,8 @@ public class MainActivity extends Activity implements SensorEventListener
     Dialog read_sensors_view;
     TextView photo_box;
     Button cancel_dialog_button;
-    boolean sensor_window_open = false;
-    
-    //Rotation sensor items
-    private SensorManager sensor_mgr;
-    private Sensor rotn_sensor;
+    boolean sensor_window_open = false;    
+
     
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -94,16 +87,12 @@ public class MainActivity extends Activity implements SensorEventListener
         setContentView(R.layout.activity_main);
         
         //Initialize screen items
-        initScreen();   
-        
+        initScreen();           
         
         //Init the sms_manager
         sms_mgr = SmsManager.getDefault();
-        sentPI = PendingIntent.getBroadcast(this, 0,new Intent(SENT_MSG), 0);
-        
-        //Init the rotation sensor
-        sensor_mgr = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        rotn_sensor = sensor_mgr.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
+        sentPI = PendingIntent.getBroadcast(this, 0,new Intent(SENT_MSG), 0);       
+
         
         //Disable these buttons until connection is est'd
         sendButton.setEnabled(false);
@@ -129,25 +118,8 @@ public class MainActivity extends Activity implements SensorEventListener
         setListeners();
         
       
-    }
-    
-    @Override
-    protected void onPause() {
-    	//sensor_mgr.unregisterListener( );
-    }
-    
-	@Override
-	public void onAccuracyChanged(Sensor sensor, int accuracy) {
-		//Do nothing here
-	}
+    }  
 
-	@Override
-	public void onSensorChanged(SensorEvent event) {
-	
-		if (event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR) {
-			//event.values;
-		}
-	}
 	
 	
 	/**
@@ -190,7 +162,7 @@ public class MainActivity extends Activity implements SensorEventListener
 	 * setListeners
 	 *  - Sets all of the onClickListeners for the buttons.  
 	 */
-	private void setListeners() {
+	public void setListeners() {
 		
 		 /**
          * listener for new dialog cancel button.  
@@ -288,10 +260,10 @@ public class MainActivity extends Activity implements SensorEventListener
 			
 			@Override
 			public void onClick(View v) {
-				// Call the function to handle this
-				//sensor_mgr.registerListener(listener, sensors, rate)
-				read_rotn();
-				
+				// Flip to the new activity
+	    		Intent read_rotn_activity = new Intent(getApplicationContext(), ReadRotn.class);
+	    		startActivity(read_rotn_activity);						
+
 			}
 		});
 	}
@@ -609,13 +581,6 @@ public class MainActivity extends Activity implements SensorEventListener
         }
     }
     
-    /**
-     * Reads the value of the rotation from the Rotation Vector Sensor, outputs a string representation of that to the screen.
-     * Returns nothing
-     */
-    void read_rotn() {    	
-    	//rotn_sensor.toString();    	
-    }
 
     
     //Unused

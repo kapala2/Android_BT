@@ -18,4 +18,6 @@
 	<string name="read_rotn_button_text">Read Rotation</string>
 	<string name="cancel_dialog_button_text">Cancel</string>
 	
+	<string name="exit_button_text">Exit</string>
+	
 </resources>
