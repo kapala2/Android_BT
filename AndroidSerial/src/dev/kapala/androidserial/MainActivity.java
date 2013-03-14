@@ -7,7 +7,12 @@ import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.content.Context;
 import android.content.Intent;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.telephony.SmsManager;
@@ -28,7 +33,7 @@ import java.util.UUID;
 
 
 
-public class MainActivity extends Activity
+public class MainActivity extends Activity implements SensorEventListener
 {
 	//Items on the screen
     TextView status_text;
@@ -77,7 +82,17 @@ public class MainActivity extends Activity
     Dialog read_sensors_view;
     TextView photo_box;
     Button cancel_dialog_button;
-    boolean sensor_window_open = false;    
+    boolean sensor_window_open = false;  
+    
+    //Sensor items
+    private SensorManager sensor_mgr;
+    private Sensor rotn_sensor;
+    final SensorEventListener sel = this;
+    float[] values;
+    float x_rotn, y_rotn, z_rotn;
+    Dialog read_rotn_view;
+    
+
 
     
     @Override
@@ -91,7 +106,11 @@ public class MainActivity extends Activity
         
         //Init the sms_manager
         sms_mgr = SmsManager.getDefault();
-        sentPI = PendingIntent.getBroadcast(this, 0,new Intent(SENT_MSG), 0);       
+        sentPI = PendingIntent.getBroadcast(this, 0,new Intent(SENT_MSG), 0);    
+        
+        //Init the sensor listener (servo)
+	    sensor_mgr = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+	    rotn_sensor = sensor_mgr.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
 
         
         //Disable these buttons until connection is est'd
@@ -115,10 +134,51 @@ public class MainActivity extends Activity
 
         
         //Set the various listeners
-        setListeners();
-        
+        setListeners();       
+
       
     }  
+    
+    @Override
+	protected void onResume() {
+		super.onResume();
+		// register this class as a listener for the orientation and
+		// accelerometer sensors
+		sensor_mgr.registerListener(sel,
+				sensor_mgr.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
+        SensorManager.SENSOR_DELAY_NORMAL);
+	}
+
+	@Override
+	protected void onPause() {
+		// unregister listener
+		super.onPause();
+		sensor_mgr.unregisterListener(sel);
+	}
+	
+    
+
+	@Override
+	public void onAccuracyChanged(Sensor sensor, int accuracy) {
+		// TODO Auto-generated method stub
+		
+		
+	}
+
+
+
+	@Override
+	public void onSensorChanged(SensorEvent event) {
+		// TODO Auto-generated method stub
+		//read the values
+		values = event.values;
+		x_rotn = values[0];
+		y_rotn = values[1];
+		z_rotn = values[2];
+		
+	}
+	
+	
 
 	
 	
@@ -261,8 +321,15 @@ public class MainActivity extends Activity
 			@Override
 			public void onClick(View v) {
 				// Flip to the new activity
-	    		Intent read_rotn_activity = new Intent(getApplicationContext(), ReadRotn.class);
-	    		startActivity(read_rotn_activity);						
+				
+	    		//Intent read_rotn_activity = new Intent(getApplicationContext(), ReadRotn.class);
+	    		
+	    		//startActivity(read_rotn_activity);				
+	    		
+	    		sensor_mgr.registerListener(sel,
+	    				sensor_mgr.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
+	            SensorManager.SENSOR_DELAY_NORMAL);
+	    		
 
 			}
 		});
@@ -589,6 +656,9 @@ public class MainActivity extends Activity
         getMenuInflater().inflate(R.menu.activity_main, menu);
         return true;
     }
+
+
+
 }
 
 /*  void beginListenForData()
