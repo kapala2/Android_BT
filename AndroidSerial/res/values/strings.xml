@@ -17,6 +17,7 @@
 	<string name="photo_value_label_text">Photoresistor Value</string>
 	<string name="read_rotn_button_text">Read Rotation</string>
 	<string name="cancel_dialog_button_text">Cancel</string>
+	<string name="x_rotn_label_text">X-axis rotation:</string>
 	
 	<string name="exit_button_text">Exit</string>
 	

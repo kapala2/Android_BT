@@ -5,20 +5,31 @@
     android:orientation="vertical" >
     
     <TextView 
-        android:id="@+id/photo_value_label"
+        android:id="@+id/x_rotn_value_label"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="@string/photo_value_label_text"/>
+        android:text="@string/x_rotn_label_text"/>
     
     <TextView
-        android:id="@+id/photo_value"
+        android:id="@+id/x_rotn_value"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content" 
         android:textSize="20dip"/>
+    <TextView
+        android:id="@+id/y_rotn_value"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:textSize="20dip" />
+    <TextView
+        android:id="@+id/z_rotn_value"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:textSize="20dip" />
     
     <Button
-        android:id="@+id/cancel_dialog_button"
+        android:id="@+id/cancel_rotn_dialog"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:text="@string/cancel_dialog_button_text" />
+    
 </LinearLayout>

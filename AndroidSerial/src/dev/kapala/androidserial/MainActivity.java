@@ -81,7 +81,7 @@ public class MainActivity extends Activity implements SensorEventListener
     //Dialog box items
     Dialog read_sensors_view;
     TextView photo_box;
-    Button cancel_dialog_button;
+    Button cancel_photo_dialog;
     boolean sensor_window_open = false;  
     
     //Sensor items
@@ -91,6 +91,9 @@ public class MainActivity extends Activity implements SensorEventListener
     float[] values;
     float x_rotn, y_rotn, z_rotn;
     Dialog read_rotn_view;
+    TextView x_rotn_value, y_rotn_value, z_rotn_value;
+    Button cancel_rotn_dialog;
+    
     
 
 
@@ -142,11 +145,8 @@ public class MainActivity extends Activity implements SensorEventListener
     @Override
 	protected void onResume() {
 		super.onResume();
-		// register this class as a listener for the orientation and
-		// accelerometer sensors
-		sensor_mgr.registerListener(sel,
-				sensor_mgr.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
-        SensorManager.SENSOR_DELAY_NORMAL);
+		// register this class as a listener for the 
+		sensor_mgr.registerListener(sel, rotn_sensor, SensorManager.SENSOR_DELAY_NORMAL);
 	}
 
 	@Override
@@ -161,8 +161,7 @@ public class MainActivity extends Activity implements SensorEventListener
 	@Override
 	public void onAccuracyChanged(Sensor sensor, int accuracy) {
 		// TODO Auto-generated method stub
-		
-		
+		//Not used now
 	}
 
 
@@ -175,12 +174,13 @@ public class MainActivity extends Activity implements SensorEventListener
 		x_rotn = values[0];
 		y_rotn = values[1];
 		z_rotn = values[2];
+		x_rotn_value.setText("X: " + x_rotn);
+		y_rotn_value.setText("Y: " + y_rotn);
+		z_rotn_value.setText("Z: " + z_rotn);
 		
-	}
-	
-	
-
-	
+		//Take x from -0.15 to +0.15?
+		
+	}	
 	
 	/**
 	 * initScreen
@@ -193,7 +193,17 @@ public class MainActivity extends Activity implements SensorEventListener
         read_sensors_view.setContentView(R.layout.read_photo);
         read_sensors_view.setTitle("Sensor values!");
         photo_box = (TextView)read_sensors_view.findViewById(R.id.photo_value);
-        cancel_dialog_button = (Button)read_sensors_view.findViewById(R.id.cancel_dialog_button);
+        cancel_photo_dialog = (Button)read_sensors_view.findViewById(R.id.cancel_dialog_button);
+        
+        //Alternate rotn view dialog
+        read_rotn_view = new Dialog(this);
+        read_rotn_view.setContentView(R.layout.read_rotn_view);
+        read_rotn_view.setTitle("Rotation value:");
+        x_rotn_value = (TextView)read_rotn_view.findViewById(R.id.x_rotn_value);
+        y_rotn_value = (TextView)read_rotn_view.findViewById(R.id.y_rotn_value);
+        z_rotn_value = (TextView)read_rotn_view.findViewById(R.id.z_rotn_value);
+        cancel_rotn_dialog = (Button)read_rotn_view.findViewById(R.id.cancel_rotn_dialog);        
+        		
         
         //Initialize Buttons
         openButton = (Button)findViewById(R.id.open_button);
@@ -228,7 +238,7 @@ public class MainActivity extends Activity implements SensorEventListener
          * listener for new dialog cancel button.  
          * Just closes the dialog.
          */
-        cancel_dialog_button.setOnClickListener(new View.OnClickListener() {			
+        cancel_photo_dialog.setOnClickListener(new View.OnClickListener() {			
 			@Override
 			public void onClick(View v) {
 				// Just close the box
@@ -236,6 +246,19 @@ public class MainActivity extends Activity implements SensorEventListener
 				sensor_window_open = false;
 			}
 		});
+        
+        /**
+         * Listener for the close rotation dialog
+         * Unregister the listener, close the window, indicate that the window is not open
+         */
+        cancel_rotn_dialog.setOnClickListener(new View.OnClickListener() {
+        	@Override
+        	public void onClick(View v) {
+        		sensor_mgr.unregisterListener(sel);
+        		read_rotn_view.cancel();
+        		sensor_window_open = false;
+        	}
+        });
         
         //Open Button
         openButton.setOnClickListener(new View.OnClickListener() {
@@ -295,7 +318,10 @@ public class MainActivity extends Activity implements SensorEventListener
         twist_servo_button.setOnClickListener(new View.OnClickListener() {        	
         	@Override
         	public void onClick(View v) {
-        		sendData(SERVO_MESSAGE);
+        		//sendData(SERVO_MESSAGE);        		
+        		sensor_mgr.registerListener(sel, rotn_sensor, SensorManager.SENSOR_DELAY_NORMAL);
+        		read_rotn_view.show();
+        		sensor_window_open = true;
         	}
         });
         
@@ -326,9 +352,9 @@ public class MainActivity extends Activity implements SensorEventListener
 	    		
 	    		//startActivity(read_rotn_activity);				
 	    		
-	    		sensor_mgr.registerListener(sel,
+	    		/*sensor_mgr.registerListener(sel,
 	    				sensor_mgr.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
-	            SensorManager.SENSOR_DELAY_NORMAL);
+	            SensorManager.SENSOR_DELAY_NORMAL);*/
 	    		
 
 			}
